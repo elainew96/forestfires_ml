@@ -22,38 +22,41 @@ del df['day']
 del df['month']
 #change area to logrithmic scaling
 #df['area'] = math.log(float(df['area'])+1)
-df['area'].apply(lambda x: math.log(x+1))
+df['area'].apply(lambda x: math.log(x+2))
 ff = df.copy()
 y = ff['area']
 x = ff.drop('area',axis=1)
+x_train = x.head(n=517-50)
+y_train = y.head(n=517-50)
 
-print x
-print y
+x_test = x.tail(n=50)
+y_test = y.tail(n=50)
 
-raw_input("Press Enter: ")
+#raw_input("Press Enter: ")
 
-# Load or fit regression model
-try:
-    pickle_y_rbf = open('y_data_rbf','rb')
-    pickle_y_poly=open('y_data_poly','wb')
-    y_rbf = pickle.load(pickle_y_rbf)
-    y_poly = pickle.load(pickle_y_poly)
-    pickle_y_rbf.close()
-    pickle_y_poly.close()
-except:
-    svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
-    svr_poly = SVR(kernel='poly', C=1e3, degree=2)
-    y_rbf = svr_rbf.fit(x, y).predict(x)
-    y_poly = svr_poly.fit(x, y).predict(x)
-    pickle_y_rbf = open('y_data_rbf','wb')
-    pickle.dump(y_rbf,pickle_y_rbf)
-    pickle_y_rbf.close()
-    pickle_y_poly=open('y_data_poly','wb')
-    pickle.dump(y_poly,pickle_y_poly)
-    pickle_y_poly.close()
+svr_rbf = SVR(kernel='rbf', C=1e3, gamma=1e-7)
+#svr_poly = SVR(kernel='poly', C=1e3, degree=2)
+rbf = svr_rbf.fit(x_train, y_train)
+#y_rbf = rbf.predict(x)
+#y_poly = svr_poly.fit(x, y).predict(x)
 
-exit(0)
+#pickle_y_poly=open('y_data_poly','wb')
+#pickle.dump(y_poly,pickle_y_poly)
+#pickle_y_poly.close()
 
+x_c = 2
+y_c = 2
+FFMC = 80  # fine fuel moisture code, between 18.7-96.2
+DMC = 200  # duff moisture code 1.1-291.3
+DC = 860   # drought code 7.9-860.6
+ISI = 50   # initial spread index 0-56.1
+temp = 30  # 2.2-33.3 C
+rh = 17    # relative humidity 15-100%
+wind = 8.5 # .4-9.4 kph
+rain = 0.0 # 0-6.4 mm/m^2
+
+big_fire = np.array([x_c, y_c, FFMC, DMC, DC, ISI, temp, rh, wind, rain])
+print(rbf.predict(big_fire.reshape((1, 10))))
 # Look at results
 #lw = 2
 #plt.scatter(x,y,facecolors='none',edgecolors='b',label='original data')
@@ -65,12 +68,26 @@ exit(0)
 #plt.legend()
 #plt.show()
 
-# Error
-rbf_error = mean_squared_error(y,y_rbf)
-poly_error = mean_squared_error(y,y_poly)
+x_c = 2
+y_c = 2
+FFMC = 34.7 # fine fuel moisture code, between 18.7-96.2
+DMC = 113   # duff moisture code 1.1-291.3
+DC =  532   # drought code 7.9-860.6
+ISI = 12    # initial spread index 0-56.1
+temp = 20   # 2.2-33.3 C
+rh = 67     # relative humidity 15-100%
+wind = 3.5  # .4-9.4 kph
+rain = 5.4  # 0-6.4 mm/m^2
 
-print 'RBF model error: ' + str(rbf_error)
-print 'Poly model error: ' + str(poly_error)
+medium_fire = np.array([x_c, y_c, FFMC, DMC, DC, ISI, temp, rh, wind, rain])
+print(rbf.predict(medium_fire.reshape((1, 10))))
+
+# Error
+#rbf_error = mean_squared_error(y,y_rbf)
+#poly_error = mean_squared_error(y,y_poly)
+
+#print 'RBF model error: ' + str(rbf_error)
+#print 'Poly model error: ' + str(poly_error)
 
 raw_input("Press Enter to continue to PCA...")
 
