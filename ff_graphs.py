@@ -89,14 +89,14 @@ print(rbf.predict(medium_fire.reshape((1, 10))))
 #print 'RBF model error: ' + str(rbf_error)
 #print 'Poly model error: ' + str(poly_error)
 
-raw_input("Press Enter to continue to PCA...")
+input("Press Enter to continue to PCA...")
 
 #plt.close()
 #PCA method
 
 pca = decomposition.PCA(n_components=2)
 data_mat = pca.fit_transform(df)
-print pca.components_
+print(pca.components_)
 
 #fit transform by hand:
 #transform = [] #contains all of the vectors
